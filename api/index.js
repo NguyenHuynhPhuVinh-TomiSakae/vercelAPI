@@ -1,5 +1,9 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
+
+// Sử dụng middleware CORS
+app.use(cors());
 
 // Route cho API
 app.get('/api', (req, res) => {
