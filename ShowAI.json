@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Hugging Face",
+    "description": "Hugging Face là một nền tảng nơi cộng đồng học máy cộng tác về các mô hình, tập dữ liệu và ứng dụng. Đây là trung tâm nơi các nhà khoa học dữ liệu, nhà nghiên cứu và kỹ sư ML hội tụ để trao đổi ý tưởng, tìm kiếm sự hỗ trợ và đóng góp cho các sáng kiến ​​nguồn mở. Hugging Face cung cấp các giải pháp Compute và Enterprise trả phí. Giải pháp Compute cho phép bạn triển khai trên các Điểm cuối suy luận được tối ưu hóa hoặc cập nhật các ứng dụng Spaces của bạn lên GPU chỉ bằng vài cú nhấp chuột, bắt đầu từ 0,60 đô la/giờ cho GPU. Giải pháp Enterprise cung cấp cho nhóm của bạn nền tảng tiên tiến nhất để xây dựng AI với bảo mật cấp doanh nghiệp, kiểm soát truy cập và hỗ trợ chuyên dụng, bắt đầu từ 20 đô la/người dùng/tháng.",
+    "tags": ["Data", "Programming"],
+    "link": "https://huggingface.co/",
+    "keyFeatures": [
+      "Nền tảng cộng tác: Lưu trữ và cộng tác trên các mô hình, tập dữ liệu và ứng dụng không giới hạn.",
+      "Nền tảng nguồn mở: Di chuyển nhanh hơn với nền tảng nguồn mở HF.",
+      "Khám phá mọi phương thức: Làm việc với văn bản, hình ảnh, video, âm thanh hoặc thậm chí 3D.",
+      "Xây dựng danh mục đầu tư của bạn: Chia sẻ công việc của bạn với thế giới và xây dựng hồ sơ ML của bạn.",
+      "Sách hướng dẫn AI nguồn mở: Bộ sưu tập sổ tay minh họa các khía cạnh thực tế của việc xây dựng ứng dụng AI và giải quyết nhiều tác vụ học máy khác nhau bằng các công cụ và mô hình nguồn mở.",
+      "Transformers: ML tiên tiến dành cho Pytorch, TensorFlow và JAX.",
+      "Bộ khuếch tán: Mô hình khuếch tán tiên tiến để tạo hình ảnh và âm thanh trong PyTorch.",
+      "Safetensor: Một cách đơn giản, an toàn để lưu trữ và phân phối trọng số mạng nơ-ron một cách an toàn và nhanh chóng.",
+      "Thư viện Hub Python: Thư viện máy khách dành cho HF Hub để quản lý kho lưu trữ từ thời gian chạy Python của bạn."
+    ]
+  },
+  {
+    "name": "MiniMax by Hailuo",
+    "description": "MiniMax của Hailuo AI, là một công cụ tạo văn bản thành video tiên tiến do công ty khởi nghiệp MiniMax của Trung Quốc phát triển. Nền tảng sáng tạo này cho phép người dùng tạo video ngắn, chất lượng cao từ các lời nhắc văn bản đơn giản, cách mạng hóa quy trình tạo nội dung. Được hỗ trợ bởi các gã khổng lồ công nghệ Alibaba và Tencent, MiniMax đã nhanh chóng giành được sức hút trên thị trường tạo video AI có tính cạnh tranh cao.",
+    "tags": ["Video"],
+    "link": "https://hailuoai.com/video",
+    "keyFeatures": [
+      "Độ phân giải đầu ra cao: 1280x720 pixel ở 25 khung hình mỗi giây",
+      "Tạo clip video dài 6 giây từ văn bản",
+      "Nhiều phong cách hình ảnh và góc nhìn máy ảnh",
+      "Giao diện thân thiện với người dùng",
+      "Hiển thị chân thực các chuyển động và chi tiết phức tạp",
+      "Tính năng tối ưu hóa nhanh chóng để nâng cao chất lượng hình ảnh",
+      "Hỗ trợ cả lời nhắc văn bản tiếng Anh và tiếng Trung",
+      "Thời gian tạo nhanh (khoảng 2-5 phút cho mỗi video)",
+      "Truy cập miễn phí với giới hạn tạo hàng ngày cho người dùng chưa đăng ký",
+      "Ứng dụng đa năng cho mục đích sáng tạo và chuyên nghiệp"
+    ]
+  },
+  {
+    "name": "ChatGPT",
+    "description": "ChatGPT là một chatbot do OpenAI phát triển và ra mắt vào tháng 11 năm 2022. ChatGPT được xây dựng dựa trên họ mô hình ngôn ngữ lớn GPT-3 của OpenAI và đã được tinh chỉnh bằng cả kỹ thuật học có giám sát và học tăng cường.",
+    "tags": ["Chat", "Research"],
+    "link": "https://chatgpt.com/",
+    "keyFeatures": [
+      ""
+    ]
+  }
+]
