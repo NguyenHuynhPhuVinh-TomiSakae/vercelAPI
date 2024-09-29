@@ -2,8 +2,13 @@
   {
     "id": 1,
     "name": "Hugging Face",
-    "description": "Hugging Face là một nền tảng nơi cộng đồng học máy cộng tác về các mô hình, tập dữ liệu và ứng dụng. Đây là trung tâm nơi các nhà khoa học dữ liệu, nhà nghiên cứu và kỹ sư ML hội tụ để trao đổi ý tưởng, tìm kiếm sự hỗ trợ và đóng góp cho các sáng kiến ​​nguồn mở. Hugging Face cung cấp các giải pháp Compute và Enterprise trả phí. Giải pháp Compute cho phép bạn triển khai trên các Điểm cuối suy luận được tối ưu hóa hoặc cập nhật các ứng dụng Spaces của bạn lên GPU chỉ bằng vài cú nhấp chuột, bắt đầu từ 0,60 đô la/giờ cho GPU. Giải pháp Enterprise cung cấp cho nhóm của bạn nền tảng tiên tiến nhất để xây dựng AI với bảo mật cấp doanh nghiệp, kiểm soát truy cập và hỗ trợ chuyên dụng, bắt đầu từ 20 đô la/người dùng/tháng.",
-    "tags": ["Data", "Programming"],
+    "description": [
+      "Hugging Face là một nền tảng nơi cộng đồng học máy cộng tác về các mô hình, tập dữ liệu và ứng dụng. Đây là trung tâm nơi các nhà khoa học dữ liệu, nhà nghiên cứu và kỹ sư ML hội tụ để trao đổi ý tưởng, tìm kiếm sự hỗ trợ và đóng góp cho các sáng kiến ​​nguồn mở. Hugging Face cung cấp các giải pháp Compute và Enterprise trả phí. Giải pháp Compute cho phép bạn triển khai trên các Điểm cuối suy luận được tối ưu hóa hoặc cập nhật các ứng dụng Spaces của bạn lên GPU chỉ bằng vài cú nhấp chuột, bắt đầu từ 0,60 đô la/giờ cho GPU. Giải pháp Enterprise cung cấp cho nhóm của bạn nền tảng tiên tiến nhất để xây dựng AI với bảo mật cấp doanh nghiệp, kiểm soát truy cập và hỗ trợ chuyên dụng, bắt đầu từ 20 đô la/người dùng/tháng."
+    ],
+    "tags": [
+      "Data",
+      "Programming"
+    ],
     "link": "https://huggingface.co/",
     "keyFeatures": [
       "Nền tảng cộng tác: Lưu trữ và cộng tác trên các mô hình, tập dữ liệu và ứng dụng không giới hạn.",
@@ -20,8 +25,15 @@
   {
     "id": 2,
     "name": "MiniMax by Hailuo",
-    "description": "MiniMax của Hailuo AI, là một công cụ tạo văn bản thành video tiên tiến do công ty khởi nghiệp MiniMax của Trung Quốc phát triển. Nền tảng sáng tạo này cho phép người dùng tạo video ngắn, chất lượng cao từ các lời nhắc văn bản đơn giản, cách mạng hóa quy trình tạo nội dung. Được hỗ trợ bởi các gã khổng lồ công nghệ Alibaba và Tencent, MiniMax đã nhanh chóng giành được sức hút trên thị trường tạo video AI có tính cạnh tranh cao.",
-    "tags": ["Video"],
+    "description": [
+      "MiniMax của Hailuo AI, là một công cụ tạo văn bản thành video tiên tiến do công ty khởi nghiệp MiniMax của Trung Quốc phát triển. Nền tảng sáng tạo này cho phép người dùng tạo video ngắn, chất lượng cao từ các lời nhắc văn bản đơn giản, cách mạng hóa quy trình tạo nội dung. Được hỗ trợ bởi các gã khổng lồ công nghệ Alibaba và Tencent, MiniMax đã nhanh chóng giành được sức hút trên thị trường tạo video AI có tính cạnh tranh cao.",
+      "Phiên bản hiện tại của Hailuo AI tạo ra các đoạn video clip dài 6 giây với độ phân giải 1280x720 pixel, chạy ở tốc độ 25 khung hình/giây. Các đầu ra chất lượng cao này đảm bảo nội dung hình ảnh sắc nét và mượt mà, phù hợp với nhiều ứng dụng chuyên nghiệp và sáng tạo khác nhau. Công cụ này hỗ trợ nhiều phong cách hình ảnh và góc nhìn máy ảnh, mang đến cho người dùng sự linh hoạt để tạo ra nội dung đa dạng và hấp dẫn, từ cảnh quan thành phố tương lai đến cảnh thiên nhiên thanh bình.",
+      "MiniMax Video-01 nổi bật với chất lượng hình ảnh ấn tượng và khả năng tái tạo các chuyển động phức tạp với độ chân thực cao. Nó được biết đến với khả năng tái tạo chính xác các chi tiết phức tạp, chẳng hạn như chuyển động tay phức tạp trong video về một nghệ sĩ piano chơi đại dương cầm. Giao diện thân thiện với người dùng của nền tảng này giúp cả những người đam mê AI và những người sáng tạo nội dung nói chung đều có thể truy cập, cho phép họ dễ dàng tạo video bằng cách nhập lời nhắc văn bản trên trang web.",
+      "Mặc dù phiên bản hiện tại có một số hạn chế, chẳng hạn như thời lượng clip ngắn, MiniMax đang tích cực cải tiến. Một phiên bản mới của Hailuo AI hiện đang được phát triển, dự kiến ​​sẽ cung cấp thời lượng clip dài hơn và giới thiệu các tính năng như chuyển đổi hình ảnh sang video. Công ty cũng vừa mới ra mắt một trang web tiếng Anh chuyên dụng cho công cụ này, cho thấy động lực thúc đẩy mở rộng toàn cầu."
+    ],
+    "tags": [
+      "Video"
+    ],
     "link": "https://hailuoai.com/video",
     "keyFeatures": [
       "Độ phân giải đầu ra cao: 1280x720 pixel ở 25 khung hình mỗi giây.",
@@ -39,10 +51,27 @@
   {
     "id": 3,
     "name": "ChatGPT",
-    "description": "ChatGPT là một chatbot do OpenAI phát triển và ra mắt vào tháng 11 năm 2022. ChatGPT được xây dựng dựa trên họ mô hình ngôn ngữ lớn GPT-3 của OpenAI và đã được tinh chỉnh bằng cả kỹ thuật học có giám sát và học tăng cường.",
-    "tags": ["Chat", "Research"],
+    "description": [
+      "ChatGPT là một chatbot do OpenAI phát triển và ra mắt vào tháng 11 năm 2022. ChatGPT được xây dựng dựa trên họ mô hình ngôn ngữ lớn GPT-3 của OpenAI và đã được tinh chỉnh bằng cả kỹ thuật học có giám sát và học tăng cường."
+    ],
+    "tags": [
+      "Chat",
+      "Research"
+    ],
     "link": "https://chatgpt.com/",
-    "keyFeatures": [
-    ]
+    "keyFeatures": []
+  },
+  {
+    "name": "uPix",
+    "description": [
+      "uPix là một AI Selfie Generator cho phép người dùng biến thành bất kỳ ai chỉ bằng một cú nhấp chuột. Nó được mô tả là Ứng dụng Cosplay AI tốt nhất. Người dùng chỉ cần tải ảnh của họ lên và chọn một mẫu. AI được tinh chỉnh để tạo ra những bức ảnh siêu thực, độ phân giải cao chỉ bằng một cú nhấp chuột. Nền tảng này không phức tạp và không yêu cầu người dùng phải dành vô số giờ để cố gắng nhận được lời nhắc phù hợp. Tất cả những gì họ phải làm là tải lên một khuôn mặt và nhấp vào tạo.",
+      "Nền tảng này không cần đăng ký, không có hình mờ và không có phí ẩn. Người dùng chỉ trả tiền cho những gì họ tạo ra và tín dụng của họ không bao giờ hết hạn. Họ có thể tham gia miễn phí và kiếm thêm tín dụng bằng cách giới thiệu bạn bè. Người dùng có thể tạo ảnh tự sướng ngay lập tức bằng AI, chọn từ siêu anh hùng, nhân vật anime, ảnh đời thực, v.v. Chỉ cần tải khuôn mặt của bạn lên và tạo ảnh chỉ bằng một cú nhấp chuột mà không cần nhắc nhở."
+    ],
+    "tags": [
+      "Image Generation"
+    ],
+    "keyFeatures": [],
+    "link": "https://upix.app/",
+    "id": 4
   }
 ]
