@@ -73,5 +73,26 @@
     "keyFeatures": [],
     "link": "https://upix.app/",
     "id": 4
+  },
+  {
+    "name": "ComfyUI",
+    "description": [
+      "ComfyUI là GUI và backend khuếch tán ổn định mạnh mẽ và theo mô-đun. Nó được Comfyanonymous tạo ra vào tháng 1 năm 2023. Giao diện người dùng này cho phép bạn thiết kế và thực hiện các đường ống khuếch tán ổn định nâng cao bằng giao diện dựa trên biểu đồ/nút/sơ đồ luồng.",
+      "Nó đang ngày càng phổ biến trong số những người dùng Stable Diffusion do tính dễ cấu hình và nhẹ của nó. Nó được cả nhà phát triển và nghệ sĩ sử dụng."
+    ],
+    "tags": [
+      "Image Generation",
+      "Automation"
+    ],
+    "keyFeatures": [
+      "Giao diện nút/đồ thị/sơ đồ luồng: Cho phép bạn thử nghiệm và tạo các quy trình làm việc Stable Diffusion phức tạp mà không cần phải mã hóa bất cứ thứ gì.",
+      "Hệ thống hàng đợi không đồng bộ: Hệ thống này tối ưu hóa quy trình làm việc bằng cách chỉ thực hiện lại các phần của quy trình làm việc thay đổi giữa các lần thực hiện.",
+      "Tùy chọn dòng lệnh: Các tùy chọn như --lowvram và --cpu giúp lệnh này hoạt động trên GPU có vram dưới 3GB hoặc thậm chí không có GPU.",
+      "Hỗ trợ mô hình: Có thể tải các mô hình/điểm kiểm tra ckpt, safetensor và diffuser, VAE độc lập và mô hình CLIP.",
+      "Lưu/tải quy trình công việc: Quy trình công việc có thể được lưu dưới dạng tệp Json hoặc tải từ tệp PNG được tạo.",
+      "Chức năng ngoại tuyến: ComfyUI hoạt động hoàn toàn ngoại tuyến và sẽ không bao giờ tải xuống bất cứ thứ gì."
+    ],
+    "link": "https://github.com/comfyanonymous/ComfyUI",
+    "id": 5
   }
 ]
