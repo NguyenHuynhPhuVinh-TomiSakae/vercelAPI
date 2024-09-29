@@ -29,6 +29,26 @@
             </form>
         </div>
 
+        <!-- Bộ lọc và tìm kiếm -->
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-xl font-semibold mb-2">Lọc và Tìm kiếm</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="searchInput" placeholder="Tìm theo tên" class="w-full p-2 border rounded">
+                <select id="tagFilter" class="w-full p-2 border rounded">
+                    <option value="">Tất cả tags</option>
+                </select>
+                <button onclick="applyFilters()" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Áp
+                    dụng</button>
+            </div>
+        </div>
+
+        <!-- Nút chuyển đổi chế độ hiển thị -->
+        <div class="mb-4">
+            <button id="toggleViewMode" class="bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                Chuyển đổi chế độ hiển thị
+            </button>
+        </div>
+
         <!-- Danh sách Show -->
         <div id="showList" class="space-y-4"></div>
 
@@ -61,6 +81,7 @@
         const API_URL = 'http://localhost:3000/api/showai';
 
         let allShows = []; // Biến toàn cục để lưu trữ tất cả show
+        let isCompactView = false; // Biến để theo dõi chế độ hiển thị
 
         // Lấy và hiển thị danh sách show
         async function fetchShows() {
@@ -68,6 +89,7 @@
                 const response = await axios.get(API_URL);
                 allShows = response.data; // Lưu tất cả show vào biến toàn cục
                 displayShows(allShows);
+                updateTagFilter();
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách show:', error);
                 alert('Có lỗi xảy ra khi tải danh sách show. Vui lòng thử lại sau.');
@@ -78,12 +100,12 @@
             const showList = document.getElementById('showList');
             showList.innerHTML = '';
             shows.forEach(show => {
-                const showElement = createShowElement(show);
+                const showElement = isCompactView ? createCompactShowElement(show) : createShowElement(show);
                 showList.appendChild(showElement);
             });
         }
 
-        // Tạo phần tử show
+        // Tạo phần tử show đầy đủ
         function createShowElement(show) {
             const div = document.createElement('div');
             div.className = 'bg-white p-4 rounded shadow mb-4';
@@ -109,6 +131,20 @@
                 <a href="${show.link}" target="_blank" class="text-blue-500 mt-2 inline-block">Truy cập</a>
                 <div class="mt-2">
                     <button onclick="editShow(${show.id})" class="bg-yellow-500 text-white p-1 rounded hover:bg-yellow-600">Sửa</button>
+                    <button onclick="deleteShow(${show.id})" class="bg-red-500 text-white p-1 rounded hover:bg-red-600">Xóa</button>
+                </div>
+            `;
+            return div;
+        }
+
+        // Tạo phần tử show rút gọn
+        function createCompactShowElement(show) {
+            const div = document.createElement('div');
+            div.className = 'bg-white p-4 rounded shadow mb-4 flex justify-between items-center';
+            div.innerHTML = `
+                <h3 class="text-xl font-semibold">${show.name}</h3>
+                <div>
+                    <button onclick="editShow(${show.id})" class="bg-yellow-500 text-white p-1 rounded hover:bg-yellow-600 mr-2">Sửa</button>
                     <button onclick="deleteShow(${show.id})" class="bg-red-500 text-white p-1 rounded hover:bg-red-600">Xóa</button>
                 </div>
             `;
@@ -192,6 +228,7 @@
                     await axios.put(`${API_URL}/${id}`, updatedShow);
                     displayShows(allShows);
                     hideEditModal();
+                    updateTagFilter();
                 } catch (error) {
                     console.error('Lỗi khi cập nhật show:', error);
                     alert('Có lỗi xảy ra khi cập nhật show. Vui lòng thử lại.');
@@ -212,6 +249,44 @@
                 }
             }
         }
+
+        // Cập nhật bộ lọc tag
+        function updateTagFilter() {
+            const tagFilter = document.getElementById('tagFilter');
+            const allTags = new Set();
+            allShows.forEach(show => {
+                if (Array.isArray(show.tags)) {
+                    show.tags.forEach(tag => allTags.add(tag));
+                }
+            });
+            tagFilter.innerHTML = '<option value="">Tất cả tags</option>';
+            allTags.forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                tagFilter.appendChild(option);
+            });
+        }
+
+        // Áp dụng bộ lọc và tìm kiếm
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedTag = document.getElementById('tagFilter').value;
+
+            const filteredShows = allShows.filter(show => {
+                const nameMatch = show.name.toLowerCase().includes(searchTerm);
+                const tagMatch = selectedTag === '' || (Array.isArray(show.tags) && show.tags.includes(selectedTag));
+                return nameMatch && tagMatch;
+            });
+
+            displayShows(filteredShows);
+        }
+
+        // Chuyển đổi chế độ hiển thị
+        document.getElementById('toggleViewMode').addEventListener('click', () => {
+            isCompactView = !isCompactView;
+            displayShows(allShows);
+        });
 
         // Lấy danh sách show ban đầu
         fetchShows();

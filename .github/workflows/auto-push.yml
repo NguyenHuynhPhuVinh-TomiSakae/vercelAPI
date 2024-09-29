@@ -1,0 +1,30 @@
+name: Auto Commit and Push
+
+on:
+  push:
+    branches:
+      - main  # Chạy khi có thay đổi trong nhánh main
+
+jobs:
+  auto-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Detect changes
+        run: |
+          # Kiểm tra nếu có bất kỳ thay đổi nào
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Changes detected. Pushing to GitHub."
+            git add .
+            git commit -m "Auto commit by GitHub Actions"
+            git push
+          else
+            echo "No changes detected."
+          fi
