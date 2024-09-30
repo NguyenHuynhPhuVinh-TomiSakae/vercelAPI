@@ -7,6 +7,12 @@ const client = new MongoClient(uri);
 
 export async function GET(request: Request) {
     const origin = request.headers.get('origin');
+    const { searchParams } = new URL(request.url);
+
+    // Lấy các tham số tìm kiếm từ URL
+    const searchKeyword = searchParams.get('q') || '';
+    const tag = searchParams.get('tag') || '';
+    const id = searchParams.get('id') || '';
 
     try {
         // Kết nối đến MongoDB Atlas
@@ -14,8 +20,26 @@ export async function GET(request: Request) {
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
-        // Thực hiện truy vấn (ví dụ: lấy tất cả documents)
-        const documents = await collection.find({}).toArray();
+        // Tạo query object
+        const query: Record<string, unknown> = {};
+
+        if (id) {
+            query.id = id;
+        }
+
+        if (searchKeyword) {
+            query.$or = [
+                { name: { $regex: searchKeyword, $options: 'i' } },
+                { description: { $elemMatch: { $regex: searchKeyword, $options: 'i' } } }
+            ];
+        }
+
+        if (tag) {
+            query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
+        }
+
+        // Thực hiện truy vấn với query đã tạo
+        const documents = await collection.find(query).sort({ _id: -1 }).toArray();
 
         // Tạo response với dữ liệu từ MongoDB
         const response = NextResponse.json(documents);
