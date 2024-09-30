@@ -22,7 +22,7 @@ export default function Login() {
     setUsernameError('')
     setPasswordError('')
 
-    if (username === process.env.NEXT_PUBLIC_USERNAME && password === process.env.NEXT_PUBLIC_PASSWORD) {
+    if (username === process.env.USERNAME && password === process.env.PASSWORD) {
       localStorage.setItem('username', username)
       localStorage.setItem('password', password)
       router.push('/admin')

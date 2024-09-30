@@ -30,7 +30,7 @@ export default function Admin() {
         const savedUsername = localStorage.getItem('username')
         const savedPassword = localStorage.getItem('password')
 
-        if (savedUsername !== process.env.NEXT_PUBLIC_USERNAME || savedPassword !== process.env.NEXT_PUBLIC_PASSWORD) {
+        if (savedUsername !== process.env.USERNAME || savedPassword !== process.env.PASSWORD) {
             router.push('/')
         } else {
             fetchData()
@@ -39,6 +39,7 @@ export default function Admin() {
 
     useEffect(() => {
         filterData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data, searchTerm, selectedTag])
 
     const fetchData = async () => {
