@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ObjectId } = require('mongodb');
+require('dotenv').config();
 
 const app = express();
 
@@ -10,26 +11,25 @@ app.use(cors());
 // Middleware để parse JSON body
 app.use(express.json());
 
-// Chuỗi kết nối MongoDB Atlas
-const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
+// Sử dụng biến môi trường cho chuỗi kết nối MongoDB Atlas
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
-    serverSelectionTimeoutMS: 30000, // Tăng thời gian chờ lên 30 giây
-    socketTimeoutMS: 45000,
-    connectTimeoutMS: 30000, // Thêm thời gian chờ kết nối
+    maxPoolSize: 10, // Số lượng kết nối tối đa trong pool
 });
 
-// Kết nối đến MongoDB
+let db;
+
+// Kết nối đến MongoDB và tạo connection pool
 async function connectToDatabase() {
     try {
         await client.connect();
         console.log("Đã kết nối thành công đến MongoDB");
-        await client.db("admin").command({ ping: 1 });
+        db = client.db(process.env.DB_NAME);
+        await db.command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } catch (error) {
         console.error("Lỗi kết nối đến MongoDB:", error);
-        // Thử kết nối lại sau 5 giây
-        console.log("Đang thử kết nối lại sau 5 giây...");
-        setTimeout(connectToDatabase, 5000);
+        process.exit(1);
     }
 }
 
@@ -37,8 +37,7 @@ connectToDatabase();
 
 // Hàm lấy dữ liệu show AI từ MongoDB
 async function getShowData(searchKeyword = '', tag = '', id = '') {
-    const database = client.db("showai");
-    const collection = database.collection("data_web_ai");
+    const collection = db.collection("data_web_ai");
 
     let query = {};
 
