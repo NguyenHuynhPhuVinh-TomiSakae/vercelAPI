@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs').promises;
-const path = require('path');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const app = express();
 
@@ -11,32 +10,45 @@ app.use(cors());
 // Middleware để parse JSON body
 app.use(express.json());
 
-// Đọc dữ liệu từ file JSON và lọc theo từ khóa tìm kiếm, tag và id
+// Chuỗi kết nối MongoDB Atlas
+const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
+const client = new MongoClient(uri);
+
+// Kết nối đến MongoDB
+async function connectToDatabase() {
+    try {
+        await client.connect();
+        console.log("Đã kết nối thành công đến MongoDB");
+    } catch (error) {
+        console.error("Lỗi kết nối đến MongoDB:", error);
+    }
+}
+
+connectToDatabase();
+
+// Hàm lấy dữ liệu show AI từ MongoDB
 async function getShowData(searchKeyword = '', tag = '', id = '') {
-    const filePath = path.join(process.cwd(), 'ShowAI.json');
-    const data = await fs.readFile(filePath, 'utf8');
-    let showData = JSON.parse(data);
+    const database = client.db("showai");
+    const collection = database.collection("data_web_ai");
+
+    let query = {};
 
     if (id) {
-        showData = showData.filter(show => show.id.toString() === id);
+        query._id = new ObjectId(id);
     }
 
     if (searchKeyword) {
-        showData = showData.filter(show =>
-            show.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-            show.description.some(desc => desc.toLowerCase().includes(searchKeyword.toLowerCase()))
-        );
+        query.$or = [
+            { name: { $regex: searchKeyword, $options: 'i' } },
+            { description: { $elemMatch: { $regex: searchKeyword, $options: 'i' } } }
+        ];
     }
 
     if (tag) {
-        showData = showData.filter(show =>
-            show.tags && show.tags.some(t => t.toLowerCase() === tag.toLowerCase())
-        );
+        query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
     }
 
-    // Sắp xếp showData theo id từ cao đến thấp
-    showData.sort((a, b) => b.id - a.id);
-
+    const showData = await collection.find(query).sort({ _id: -1 }).toArray();
     return showData;
 }
 
@@ -50,78 +62,6 @@ app.get('/api/showai', async (req, res) => {
         res.json(showData);
     } catch (error) {
         console.error('Lỗi khi đọc dữ liệu show AI:', error);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
-// Route để thêm một show AI mới
-app.post('/api/showai', async (req, res) => {
-    try {
-        const filePath = path.join(process.cwd(), 'ShowAI.json');
-        const data = await fs.readFile(filePath, 'utf8');
-        let showData = JSON.parse(data);
-
-        const newShow = req.body;
-        newShow.id = Math.max(...showData.map(show => show.id)) + 1;
-
-        showData.push(newShow);
-
-        await fs.writeFile(filePath, JSON.stringify(showData, null, 2));
-
-        res.status(201).json(newShow);
-    } catch (error) {
-        console.error('Lỗi khi thêm show AI mới:', error);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
-// Route để cập nhật một show AI
-app.put('/api/showai/:id', async (req, res) => {
-    try {
-        const filePath = path.join(process.cwd(), 'ShowAI.json');
-        const data = await fs.readFile(filePath, 'utf8');
-        let showData = JSON.parse(data);
-
-        const id = parseInt(req.params.id);
-        const updatedShow = req.body;
-
-        const index = showData.findIndex(show => show.id === id);
-        if (index === -1) {
-            return res.status(404).json({ error: 'Không tìm thấy show AI' });
-        }
-
-        showData[index] = { ...showData[index], ...updatedShow };
-
-        await fs.writeFile(filePath, JSON.stringify(showData, null, 2));
-
-        res.json(showData[index]);
-    } catch (error) {
-        console.error('Lỗi khi cập nhật show AI:', error);
-        res.status(500).json({ error: 'Lỗi server' });
-    }
-});
-
-// Route để xóa một show AI
-app.delete('/api/showai/:id', async (req, res) => {
-    try {
-        const filePath = path.join(process.cwd(), 'ShowAI.json');
-        const data = await fs.readFile(filePath, 'utf8');
-        let showData = JSON.parse(data);
-
-        const id = parseInt(req.params.id);
-
-        const index = showData.findIndex(show => show.id === id);
-        if (index === -1) {
-            return res.status(404).json({ error: 'Không tìm thấy show AI' });
-        }
-
-        showData.splice(index, 1);
-
-        await fs.writeFile(filePath, JSON.stringify(showData, null, 2));
-
-        res.json({ message: 'Đã xóa show AI thành công' });
-    } catch (error) {
-        console.error('Lỗi khi xóa show AI:', error);
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
