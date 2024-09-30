@@ -24,7 +24,7 @@ async function connectToDatabase() {
     try {
         await client.connect();
         console.log("Đã kết nối thành công đến MongoDB");
-        db = client.db(process.env.DB_NAME);
+        db = client.db("showai");
         await db.command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } catch (error) {
