@@ -13,8 +13,9 @@ app.use(express.json());
 // Chuỗi kết nối MongoDB Atlas
 const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
 const client = new MongoClient(uri, {
-    serverSelectionTimeoutMS: 5000, // Tăng thời gian chờ kết nối
-    socketTimeoutMS: 45000, // Tăng thời gian chờ cho các hoạt động socket
+    serverSelectionTimeoutMS: 30000, // Tăng thời gian chờ lên 30 giây
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 30000, // Thêm thời gian chờ kết nối
 });
 
 // Kết nối đến MongoDB
@@ -22,12 +23,13 @@ async function connectToDatabase() {
     try {
         await client.connect();
         console.log("Đã kết nối thành công đến MongoDB");
-        // Kiểm tra kết nối
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } catch (error) {
         console.error("Lỗi kết nối đến MongoDB:", error);
-        process.exit(1); // Thoát ứng dụng nếu không thể kết nối
+        // Thử kết nối lại sau 5 giây
+        console.log("Đang thử kết nối lại sau 5 giây...");
+        setTimeout(connectToDatabase, 5000);
     }
 }
 
