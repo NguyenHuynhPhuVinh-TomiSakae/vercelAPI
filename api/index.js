@@ -10,25 +10,28 @@ app.use(cors());
 // Middleware để parse JSON body
 app.use(express.json());
 
-// Chuỗi kết nối MongoDB Atlas
-const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
-const client = new MongoClient(uri);
+// Sử dụng biến môi trường
+const uri = process.env.MONGODB_URI;
+let client;
 
-// Kết nối đến MongoDB
+// Hàm kết nối đến MongoDB
 async function connectToDatabase() {
-    try {
-        await client.connect();
-        console.log("Đã kết nối thành công đến MongoDB");
-    } catch (error) {
-        console.error("Lỗi kết nối đến MongoDB:", error);
+    if (!client) {
+        client = new MongoClient(uri);
+        try {
+            await client.connect();
+            console.log("Đã kết nối thành công đến MongoDB");
+        } catch (error) {
+            console.error("Lỗi kết nối đến MongoDB:", error);
+            throw error;
+        }
     }
+    return client.db("showai");
 }
-
-connectToDatabase();
 
 // Hàm lấy dữ liệu show AI từ MongoDB
 async function getShowData(searchKeyword = '', tag = '', id = '') {
-    const database = client.db("showai");
+    const database = await connectToDatabase();
     const collection = database.collection("data_web_ai");
 
     let query = {};
@@ -62,7 +65,12 @@ app.get('/api/showai', async (req, res) => {
         res.json(showData);
     } catch (error) {
         console.error('Lỗi khi đọc dữ liệu show AI:', error);
-        res.status(500).json({ error: 'Lỗi server' });
+        res.status(500).json({ error: 'Lỗi server', details: error.message });
+    } finally {
+        // Đóng kết nối sau khi xử lý xong
+        if (client) {
+            await client.close();
+        }
     }
 });
 
