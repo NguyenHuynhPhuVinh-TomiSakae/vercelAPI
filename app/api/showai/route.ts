@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 import { MongoClient } from 'mongodb';
 
 // Thay thế bằng URL kết nối MongoDB Atlas của bạn
-const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+    throw new Error('MONGODB_URI is not defined in the environment variables');
+}
 const client = new MongoClient(uri);
 
 export async function GET(request: Request) {
