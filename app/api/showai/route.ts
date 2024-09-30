@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 
 // Thay thế bằng URL kết nối MongoDB Atlas của bạn
 const uri = process.env.MONGODB_URI;
@@ -58,6 +58,72 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Đã xảy ra lỗi khi truy vấn dữ liệu' }, { status: 500 });
     } finally {
         // Đóng kết nối
+        await client.close();
+    }
+}
+
+export async function POST(request: Request) {
+    const origin = request.headers.get('origin');
+    const data = await request.json();
+
+    try {
+        await client.connect();
+        const database = client.db('showai');
+        const collection = database.collection('data_web_ai');
+
+        const result = await collection.insertOne(data);
+
+        const response = NextResponse.json({ success: true, id: result.insertedId });
+        response.headers.set('Access-Control-Allow-Origin', origin || '*');
+        return response;
+    } catch (error) {
+        console.error('Lỗi khi thêm dữ liệu:', error);
+        return NextResponse.json({ error: 'Đã xảy ra lỗi khi thêm dữ liệu' }, { status: 500 });
+    } finally {
+        await client.close();
+    }
+}
+
+export async function PUT(request: Request) {
+    const origin = request.headers.get('origin');
+    const { id, ...updateData } = await request.json();
+
+    try {
+        await client.connect();
+        const database = client.db('showai');
+        const collection = database.collection('data_web_ai');
+
+        const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: updateData });
+
+        const response = NextResponse.json({ success: true, modifiedCount: result.modifiedCount });
+        response.headers.set('Access-Control-Allow-Origin', origin || '*');
+        return response;
+    } catch (error) {
+        console.error('Lỗi khi cập nhật dữ liệu:', error);
+        return NextResponse.json({ error: 'Đã xảy ra lỗi khi cập nhật dữ liệu' }, { status: 500 });
+    } finally {
+        await client.close();
+    }
+}
+
+export async function DELETE(request: Request) {
+    const origin = request.headers.get('origin');
+    const { id } = await request.json();
+
+    try {
+        await client.connect();
+        const database = client.db('showai');
+        const collection = database.collection('data_web_ai');
+
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+
+        const response = NextResponse.json({ success: true, deletedCount: result.deletedCount });
+        response.headers.set('Access-Control-Allow-Origin', origin || '*');
+        return response;
+    } catch (error) {
+        console.error('Lỗi khi xóa dữ liệu:', error);
+        return NextResponse.json({ error: 'Đã xảy ra lỗi khi xóa dữ liệu' }, { status: 500 });
+    } finally {
         await client.close();
     }
 }
