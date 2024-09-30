@@ -10,28 +10,32 @@ app.use(cors());
 // Middleware để parse JSON body
 app.use(express.json());
 
-// Sử dụng biến môi trường
-const uri = process.env.MONGODB_URI;
-let client;
+// Chuỗi kết nối MongoDB Atlas
+const uri = "mongodb+srv://tomisakae:tomisakae0000@showai.tpwxx.mongodb.net/?retryWrites=true&w=majority&appName=ShowAI";
+const client = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 5000, // Tăng thời gian chờ kết nối
+    socketTimeoutMS: 45000, // Tăng thời gian chờ cho các hoạt động socket
+});
 
-// Hàm kết nối đến MongoDB
+// Kết nối đến MongoDB
 async function connectToDatabase() {
-    if (!client) {
-        client = new MongoClient(uri);
-        try {
-            await client.connect();
-            console.log("Đã kết nối thành công đến MongoDB");
-        } catch (error) {
-            console.error("Lỗi kết nối đến MongoDB:", error);
-            throw error;
-        }
+    try {
+        await client.connect();
+        console.log("Đã kết nối thành công đến MongoDB");
+        // Kiểm tra kết nối
+        await client.db("admin").command({ ping: 1 });
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } catch (error) {
+        console.error("Lỗi kết nối đến MongoDB:", error);
+        process.exit(1); // Thoát ứng dụng nếu không thể kết nối
     }
-    return client.db("showai");
 }
+
+connectToDatabase();
 
 // Hàm lấy dữ liệu show AI từ MongoDB
 async function getShowData(searchKeyword = '', tag = '', id = '') {
-    const database = await connectToDatabase();
+    const database = client.db("showai");
     const collection = database.collection("data_web_ai");
 
     let query = {};
@@ -65,12 +69,7 @@ app.get('/api/showai', async (req, res) => {
         res.json(showData);
     } catch (error) {
         console.error('Lỗi khi đọc dữ liệu show AI:', error);
-        res.status(500).json({ error: 'Lỗi server', details: error.message });
-    } finally {
-        // Đóng kết nối sau khi xử lý xong
-        if (client) {
-            await client.close();
-        }
+        res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
