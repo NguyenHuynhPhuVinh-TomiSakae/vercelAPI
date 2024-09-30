@@ -30,11 +30,12 @@ export default function Admin() {
         const savedUsername = localStorage.getItem('username')
         const savedPassword = localStorage.getItem('password')
 
-        if (savedUsername !== process.env.USERNAME || savedPassword !== process.env.PASSWORD) {
-            router.push('/')
+        if (savedUsername && savedPassword) {
+            authenticateUser(savedUsername, savedPassword)
         } else {
-            fetchData()
+            router.push('/')
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router])
 
     useEffect(() => {
@@ -129,6 +130,32 @@ export default function Admin() {
         } catch (error) {
             console.error(`Error ${isEditing ? 'updating' : 'adding'} item:`, error)
             setError(`An error occurred while ${isEditing ? 'updating' : 'adding'} the item`)
+        }
+    }
+
+    const authenticateUser = async (username: string, password: string) => {
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+
+            if (!response.ok) {
+                throw new Error('Authentication failed')
+            }
+
+            const data = await response.json()
+            if (data.success) {
+                fetchData()
+            } else {
+                router.push('/')
+            }
+        } catch (error) {
+            console.error('Authentication error:', error)
+            router.push('/')
         }
     }
 

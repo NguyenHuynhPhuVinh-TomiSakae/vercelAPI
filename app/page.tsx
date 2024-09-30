@@ -22,13 +22,29 @@ export default function Login() {
     setUsernameError('')
     setPasswordError('')
 
-    if (username === process.env.USERNAME && password === process.env.PASSWORD) {
-      localStorage.setItem('username', username)
-      localStorage.setItem('password', password)
-      router.push('/admin')
-    } else {
-      setUsernameError('Sai tên đăng nhập hoặc mật khẩu')
-      setPasswordError('Sai tên đăng nhập hoặc mật khẩu')
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('username', username)
+        localStorage.setItem('password', password)
+        router.push('/admin')
+      } else {
+        setUsernameError('Sai tên đăng nhập hoặc mật khẩu')
+        setPasswordError('Sai tên đăng nhập hoặc mật khẩu')
+      }
+    } catch (error) {
+      console.error('Lỗi đăng nhập:', error)
+      setUsernameError('Đã xảy ra lỗi khi đăng nhập')
+      setPasswordError('Đã xảy ra lỗi khi đăng nhập')
     }
   }
 
