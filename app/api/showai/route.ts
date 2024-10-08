@@ -16,6 +16,8 @@ export async function GET(request: Request) {
     const searchKeyword = searchParams.get('q') || '';
     const tag = searchParams.get('tag') || '';
     const id = searchParams.get('id') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const itemsPerPage = 9;
 
     try {
         // Kết nối đến MongoDB Atlas
@@ -41,11 +43,25 @@ export async function GET(request: Request) {
             query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
         }
 
-        // Thực hiện truy vấn với query đã tạo
-        const documents = await collection.find(query).sort({ _id: -1 }).toArray();
+        // Thực hiện truy vấn với query đã tạo và phân trang
+        const totalItems = await collection.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const documents = await collection.find(query)
+            .sort({ _id: -1 })
+            .skip((page - 1) * itemsPerPage)
+            .limit(itemsPerPage)
+            .toArray();
 
-        // Tạo response với dữ liệu từ MongoDB
-        const response = NextResponse.json(documents);
+        // Tạo response với dữ liệu từ MongoDB và thông tin phân trang
+        const response = NextResponse.json({
+            data: documents,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: totalItems,
+                itemsPerPage: itemsPerPage
+            }
+        });
 
         // Thêm CORS headers
         response.headers.set('Access-Control-Allow-Origin', origin || '*');
