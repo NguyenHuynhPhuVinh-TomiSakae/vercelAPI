@@ -15,7 +15,6 @@ interface DataItem {
 
 export default function Admin() {
     const [data, setData] = useState<DataItem[]>([])
-    const [filteredData, setFilteredData] = useState<DataItem[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [isFormOpen, setIsFormOpen] = useState(false)
@@ -38,11 +37,6 @@ export default function Admin() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router])
 
-    useEffect(() => {
-        filterData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, searchTerm, selectedTag])
-
     const fetchData = async () => {
         setIsLoading(true)
         try {
@@ -51,7 +45,7 @@ export default function Admin() {
                 throw new Error('Failed to fetch data')
             }
             const result = await response.json()
-            setData(result)
+            setData(result.data)
         } catch (error) {
             console.error('Error fetching data:', error)
             setError('An error occurred while fetching data')
@@ -73,7 +67,7 @@ export default function Admin() {
                 item.tags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
             )
         }
-        setFilteredData(filtered)
+        return filtered
     }
 
     const handleAdd = () => {
@@ -161,6 +155,8 @@ export default function Admin() {
 
     if (isLoading) return <div className="text-center mt-8">Loading...</div>
     if (error) return <div className="text-center mt-8 text-red-500">{error}</div>
+
+    const filteredData = filterData()
 
     return (
         <div className="container mx-auto p-4">
