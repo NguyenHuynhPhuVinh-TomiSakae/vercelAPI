@@ -52,7 +52,10 @@ export async function GET(request: Request) {
             .limit(itemsPerPage)
             .toArray();
 
-        // Tạo response với dữ liệu từ MongoDB và thông tin phân trang
+        // Tổng hợp toàn bộ tag
+        const allTags = await collection.distinct('tags');
+
+        // Tạo response với dữ liệu từ MongoDB, thông tin phân trang và danh sách tag
         const response = NextResponse.json({
             data: documents,
             pagination: {
@@ -60,7 +63,8 @@ export async function GET(request: Request) {
                 totalPages: totalPages,
                 totalItems: totalItems,
                 itemsPerPage: itemsPerPage
-            }
+            },
+            tags: allTags
         });
 
         // Thêm CORS headers
