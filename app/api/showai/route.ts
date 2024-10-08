@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const searchKeyword = searchParams.get('q') || '';
     const tag = searchParams.get('tag') || '';
     const id = searchParams.get('id') || '';
-    const page = parseInt(searchParams.get('page') || '1', 10);
+    const page = searchParams.get('page');
     const itemsPerPage = 9;
 
     try {
@@ -43,14 +43,26 @@ export async function GET(request: Request) {
             query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
         }
 
-        // Thực hiện truy vấn với query đã tạo và phân trang
-        const totalItems = await collection.countDocuments(query);
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        const documents = await collection.find(query)
-            .sort({ _id: -1 })
-            .skip((page - 1) * itemsPerPage)
-            .limit(itemsPerPage)
-            .toArray();
+        let documents;
+        let totalItems;
+        let totalPages;
+
+        if (page) {
+            // Nếu có tham số page, thực hiện phân trang
+            const pageNumber = parseInt(page, 10);
+            totalItems = await collection.countDocuments(query);
+            totalPages = Math.ceil(totalItems / itemsPerPage);
+            documents = await collection.find(query)
+                .sort({ _id: -1 })
+                .skip((pageNumber - 1) * itemsPerPage)
+                .limit(itemsPerPage)
+                .toArray();
+        } else {
+            // Nếu không có tham số page, lấy toàn bộ dữ liệu
+            documents = await collection.find(query).sort({ _id: -1 }).toArray();
+            totalItems = documents.length;
+            totalPages = 1;
+        }
 
         // Tổng hợp toàn bộ tag
         const allTags = await collection.distinct('tags');
@@ -58,12 +70,12 @@ export async function GET(request: Request) {
         // Tạo response với dữ liệu từ MongoDB, thông tin phân trang và danh sách tag
         const response = NextResponse.json({
             data: documents,
-            pagination: {
-                currentPage: page,
+            pagination: page ? {
+                currentPage: page ? parseInt(page, 10) : 1,
                 totalPages: totalPages,
                 totalItems: totalItems,
                 itemsPerPage: itemsPerPage
-            },
+            } : null,
             tags: allTags
         });
 
