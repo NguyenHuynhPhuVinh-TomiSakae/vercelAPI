@@ -18,6 +18,8 @@ export async function GET(request: Request) {
     const id = searchParams.get('id') || '';
     const page = searchParams.get('page');
     const itemsPerPage = 9;
+    const random = searchParams.get('random');
+    const star = searchParams.get('star');
 
     try {
         // Kết nối đến MongoDB Atlas
@@ -43,11 +45,25 @@ export async function GET(request: Request) {
             query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
         }
 
+        if (star) {
+            const starIds = star.split(',').map(id => id.trim());
+            query.id = { $in: starIds };
+        }
+
         let documents;
         let totalItems;
         let totalPages;
 
-        if (page) {
+        if (random) {
+            // Nếu có tham số random, lấy ngẫu nhiên số lượng bản ghi theo giá trị random
+            const randomCount = parseInt(random, 10);
+            documents = await collection.aggregate([
+                { $match: query },
+                { $sample: { size: randomCount } }
+            ]).toArray();
+            totalItems = documents.length;
+            totalPages = 1;
+        } else if (page) {
             // Nếu có tham số page, thực hiện phân trang
             const pageNumber = parseInt(page, 10);
             totalItems = await collection.countDocuments(query);
@@ -58,7 +74,7 @@ export async function GET(request: Request) {
                 .limit(itemsPerPage)
                 .toArray();
         } else {
-            // Nếu không có tham số page, lấy toàn bộ dữ liệu
+            // Nếu không có tham số page hoặc random, lấy toàn bộ dữ liệu
             documents = await collection.find(query).sort({ _id: -1 }).toArray();
             totalItems = documents.length;
             totalPages = 1;
