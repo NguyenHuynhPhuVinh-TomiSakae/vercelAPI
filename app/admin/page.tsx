@@ -109,12 +109,16 @@ export default function Admin() {
         try {
             const url = '/api/showai'
             const method = isEditing ? 'PUT' : 'POST'
+            const body = isEditing
+                ? { _id: formData._id, ...formData }
+                : formData;
+
             const response = await fetch(url, {
                 method,
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...formData, keyFeatures: formData.keyFeatures || [] }),
+                body: JSON.stringify(body),
             })
             if (!response.ok) {
                 throw new Error(`Failed to ${isEditing ? 'update' : 'add'} item`)

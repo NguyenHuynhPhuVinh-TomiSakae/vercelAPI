@@ -134,14 +134,27 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
     const origin = request.headers.get('origin');
-    const { id, ...updateData } = await request.json();
+    const { _id, id, ...updateData } = await request.json();
 
     try {
         await client.connect();
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
-        const result = await collection.updateOne({ _id: new ObjectId(id) }, { $set: updateData });
+        let query;
+        if (_id) {
+            query = { _id: new ObjectId(_id) };
+        } else if (id) {
+            query = { id: id };
+        } else {
+            throw new Error('No valid ID provided for update');
+        }
+
+        const result = await collection.updateOne(query, { $set: updateData });
+
+        if (result.matchedCount === 0) {
+            return NextResponse.json({ error: 'No document found with the provided ID' }, { status: 404 });
+        }
 
         const response = NextResponse.json({ success: true, modifiedCount: result.modifiedCount });
         response.headers.set('Access-Control-Allow-Origin', origin || '*');
