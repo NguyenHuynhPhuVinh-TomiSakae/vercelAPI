@@ -1,39 +1,35 @@
 import { NextResponse } from 'next/server';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 
 // Thay thế bằng URL kết nối MongoDB Atlas của bạn
 const uri = process.env.MONGODB_URI;
 if (!uri) {
     throw new Error('MONGODB_URI is not defined in the environment variables');
 }
-let clientPromise: Promise<MongoClient>;
 
-const options = {
-    maxPoolSize: 10, // Số lượng kết nối tối đa trong pool
-    minPoolSize: 5,  // Số lượng kết nối tối thiểu trong pool
-    connectTimeoutMS: 5000, // Thời gian timeout khi kết nối
-    socketTimeoutMS: 30000, // Thời gian timeout cho các hoạt động socket
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-};
+// Tạo một instance của MongoClient để tái sử dụng
+const client = new MongoClient(uri);
 
-declare global {
-    var _mongoClientPromise: Promise<MongoClient> | undefined;
+// Kết nối đến database một lần và tái sử dụng
+let database: Db | null = null;
+async function connectToDatabase(): Promise<Db> {
+    if (!database) {
+        await client.connect();
+        database = client.db('showai');
+    }
+    return database;
 }
 
-if (process.env.NODE_ENV === 'development') {
-    // Trong môi trường development, sử dụng biến global để tránh tạo nhiều kết nối
-    if (!global._mongoClientPromise) {
-        global._mongoClientPromise = new MongoClient(uri, options).connect();
-    }
-    clientPromise = global._mongoClientPromise;
-} else {
-    // Trong production, tạo một client promise mới
-    clientPromise = new MongoClient(uri, options).connect();
+// Hàm helper để tạo response với CORS headers
+function createCorsResponse(data: unknown, status = 200) {
+    const response = NextResponse.json(data, { status });
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return response;
 }
 
 export async function GET(request: Request) {
-    const origin = request.headers.get('origin');
     const { searchParams } = new URL(request.url);
 
     // Lấy các tham số tìm kiếm từ URL
@@ -46,9 +42,8 @@ export async function GET(request: Request) {
     const star = searchParams.get('star');
 
     try {
-        const client = await clientPromise;
-        const database = client.db('showai');
-        const collection = database.collection('data_web_ai');
+        const db = await connectToDatabase();
+        const collection = db.collection('data_web_ai');
 
         // Tạo query object
         const query: Record<string, unknown> = {};
@@ -106,8 +101,8 @@ export async function GET(request: Request) {
         // Tổng hợp toàn bộ tag
         const allTags = await collection.distinct('tags');
 
-        // Tạo response với dữ liệu từ MongoDB, thông tin phân trang và danh sách tag
-        const response = NextResponse.json({
+        // Sử dụng hàm helper để tạo response
+        return createCorsResponse({
             data: documents,
             pagination: page ? {
                 currentPage: page ? parseInt(page, 10) : 1,
@@ -117,47 +112,34 @@ export async function GET(request: Request) {
             } : null,
             tags: allTags
         });
-
-        // Thêm CORS headers
-        response.headers.set('Access-Control-Allow-Origin', origin || '*');
-        response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-        return response;
     } catch (error) {
         console.error('Lỗi khi truy vấn MongoDB:', error);
-        return NextResponse.json({ error: 'Đã xảy ra lỗi khi truy vấn dữ liệu' }, { status: 500 });
+        return createCorsResponse({ error: 'Đã xảy ra lỗi khi truy vấn dữ liệu' }, 500);
     }
 }
 
 export async function POST(request: Request) {
-    const origin = request.headers.get('origin');
     const data = await request.json();
 
     try {
-        const client = await clientPromise;
-        const database = client.db('showai');
-        const collection = database.collection('data_web_ai');
+        const db = await connectToDatabase();
+        const collection = db.collection('data_web_ai');
 
         const result = await collection.insertOne(data);
 
-        const response = NextResponse.json({ success: true, id: result.insertedId });
-        response.headers.set('Access-Control-Allow-Origin', origin || '*');
-        return response;
+        return createCorsResponse({ success: true, id: result.insertedId });
     } catch (error) {
         console.error('Lỗi khi thêm dữ liệu:', error);
-        return NextResponse.json({ error: 'Đã xảy ra lỗi khi thêm dữ liệu' }, { status: 500 });
+        return createCorsResponse({ error: 'Đã xảy ra lỗi khi thêm dữ liệu' }, 500);
     }
 }
 
 export async function PUT(request: Request) {
-    const origin = request.headers.get('origin');
     const { _id, id, ...updateData } = await request.json();
 
     try {
-        const client = await clientPromise;
-        const database = client.db('showai');
-        const collection = database.collection('data_web_ai');
+        const db = await connectToDatabase();
+        const collection = db.collection('data_web_ai');
 
         let query;
         if (_id) {
@@ -171,56 +153,33 @@ export async function PUT(request: Request) {
         const result = await collection.updateOne(query, { $set: updateData });
 
         if (result.matchedCount === 0) {
-            return NextResponse.json({ error: 'No document found with the provided ID' }, { status: 404 });
+            return createCorsResponse({ error: 'No document found with the provided ID' }, 404);
         }
 
-        const response = NextResponse.json({ success: true, modifiedCount: result.modifiedCount });
-        response.headers.set('Access-Control-Allow-Origin', origin || '*');
-        return response;
+        return createCorsResponse({ success: true, modifiedCount: result.modifiedCount });
     } catch (error) {
         console.error('Lỗi khi cập nhật dữ liệu:', error);
-        return NextResponse.json({ error: 'Đã xảy ra lỗi khi cập nhật dữ liệu' }, { status: 500 });
+        return createCorsResponse({ error: 'Đã xảy ra lỗi khi cập nhật dữ liệu' }, 500);
     }
 }
 
 export async function DELETE(request: Request) {
-    const origin = request.headers.get('origin');
     const { id } = await request.json();
 
     try {
-        const client = await clientPromise;
-        const database = client.db('showai');
-        const collection = database.collection('data_web_ai');
+        const db = await connectToDatabase();
+        const collection = db.collection('data_web_ai');
 
         const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
-        const response = NextResponse.json({ success: true, deletedCount: result.deletedCount });
-        response.headers.set('Access-Control-Allow-Origin', origin || '*');
-        return response;
+        return createCorsResponse({ success: true, deletedCount: result.deletedCount });
     } catch (error) {
         console.error('Lỗi khi xóa dữ liệu:', error);
-        return NextResponse.json({ error: 'Đã xảy ra lỗi khi xóa dữ liệu' }, { status: 500 });
+        return createCorsResponse({ error: 'Đã xảy ra lỗi khi xóa dữ liệu' }, 500);
     }
 }
 
 // Xử lý OPTIONS request cho preflight
-export async function OPTIONS(request: Request) {
-    const origin = request.headers.get('origin');
-
-    const response = new NextResponse(null, { status: 204 });
-
-    response.headers.set('Access-Control-Allow-Origin', origin || '*');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    response.headers.set('Access-Control-Max-Age', '86400');
-
-    return response;
-}
-
-// Thêm hàm này vào cuối file
-export async function closeMongoConnection() {
-    const client = await clientPromise;
-    if (client) {
-        await client.close();
-    }
+export async function OPTIONS() {
+    return createCorsResponse(null, 204);
 }
