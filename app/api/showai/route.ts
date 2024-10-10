@@ -6,7 +6,31 @@ const uri = process.env.MONGODB_URI;
 if (!uri) {
     throw new Error('MONGODB_URI is not defined in the environment variables');
 }
-const client = new MongoClient(uri);
+let clientPromise: Promise<MongoClient>;
+
+const options = {
+    maxPoolSize: 10, // Số lượng kết nối tối đa trong pool
+    minPoolSize: 5,  // Số lượng kết nối tối thiểu trong pool
+    connectTimeoutMS: 5000, // Thời gian timeout khi kết nối
+    socketTimeoutMS: 30000, // Thời gian timeout cho các hoạt động socket
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+};
+
+declare global {
+    var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
+
+if (process.env.NODE_ENV === 'development') {
+    // Trong môi trường development, sử dụng biến global để tránh tạo nhiều kết nối
+    if (!global._mongoClientPromise) {
+        global._mongoClientPromise = new MongoClient(uri, options).connect();
+    }
+    clientPromise = global._mongoClientPromise;
+} else {
+    // Trong production, tạo một client promise mới
+    clientPromise = new MongoClient(uri, options).connect();
+}
 
 export async function GET(request: Request) {
     const origin = request.headers.get('origin');
@@ -22,8 +46,7 @@ export async function GET(request: Request) {
     const star = searchParams.get('star');
 
     try {
-        // Kết nối đến MongoDB Atlas
-        await client.connect();
+        const client = await clientPromise;
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
@@ -104,9 +127,6 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error('Lỗi khi truy vấn MongoDB:', error);
         return NextResponse.json({ error: 'Đã xảy ra lỗi khi truy vấn dữ liệu' }, { status: 500 });
-    } finally {
-        // Đóng kết nối
-        await client.close();
     }
 }
 
@@ -115,7 +135,7 @@ export async function POST(request: Request) {
     const data = await request.json();
 
     try {
-        await client.connect();
+        const client = await clientPromise;
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
@@ -127,8 +147,6 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Lỗi khi thêm dữ liệu:', error);
         return NextResponse.json({ error: 'Đã xảy ra lỗi khi thêm dữ liệu' }, { status: 500 });
-    } finally {
-        await client.close();
     }
 }
 
@@ -137,7 +155,7 @@ export async function PUT(request: Request) {
     const { _id, id, ...updateData } = await request.json();
 
     try {
-        await client.connect();
+        const client = await clientPromise;
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
@@ -162,8 +180,6 @@ export async function PUT(request: Request) {
     } catch (error) {
         console.error('Lỗi khi cập nhật dữ liệu:', error);
         return NextResponse.json({ error: 'Đã xảy ra lỗi khi cập nhật dữ liệu' }, { status: 500 });
-    } finally {
-        await client.close();
     }
 }
 
@@ -172,7 +188,7 @@ export async function DELETE(request: Request) {
     const { id } = await request.json();
 
     try {
-        await client.connect();
+        const client = await clientPromise;
         const database = client.db('showai');
         const collection = database.collection('data_web_ai');
 
@@ -184,8 +200,6 @@ export async function DELETE(request: Request) {
     } catch (error) {
         console.error('Lỗi khi xóa dữ liệu:', error);
         return NextResponse.json({ error: 'Đã xảy ra lỗi khi xóa dữ liệu' }, { status: 500 });
-    } finally {
-        await client.close();
     }
 }
 
@@ -201,4 +215,12 @@ export async function OPTIONS(request: Request) {
     response.headers.set('Access-Control-Max-Age', '86400');
 
     return response;
+}
+
+// Thêm hàm này vào cuối file
+export async function closeMongoConnection() {
+    const client = await clientPromise;
+    if (client) {
+        await client.close();
+    }
 }
