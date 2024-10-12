@@ -11,6 +11,9 @@ interface DataItem {
     tags: string[];
     link: string;
     keyFeatures: string[];
+    heart: number;
+    star: number;
+    view: number;
 }
 
 export default function Admin() {
@@ -72,7 +75,13 @@ export default function Admin() {
 
     const handleAdd = () => {
         const maxId = Math.max(...data.map(item => parseInt(item.id)), 0);
-        setFormData({ id: (maxId + 1).toString(), keyFeatures: [] })
+        setFormData({
+            id: (maxId + 1).toString(),
+            keyFeatures: [],
+            heart: 0,
+            star: 0,
+            view: 0
+        })
         setIsEditing(false)
         setIsFormOpen(true)
     }

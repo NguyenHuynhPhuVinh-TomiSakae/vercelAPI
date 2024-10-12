@@ -125,7 +125,15 @@ export async function POST(request: Request) {
         const db = await connectToDatabase();
         const collection = db.collection('data_web_ai');
 
-        const result = await collection.insertOne(data);
+        // Thêm các trường mới với giá trị mặc định
+        const newData = {
+            ...data,
+            heart: 0,
+            star: 0,
+            view: 0
+        };
+
+        const result = await collection.insertOne(newData);
 
         return createCorsResponse({ success: true, id: result.insertedId });
     } catch (error) {
