@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { MongoClient, ObjectId, Db } from 'mongodb';
+import { MongoClient, ObjectId, Db, Sort } from 'mongodb';
 
 // Thay thế bằng URL kết nối MongoDB Atlas của bạn
 const uri = process.env.MONGODB_URI;
@@ -39,7 +39,9 @@ export async function GET(request: Request) {
     const page = searchParams.get('page');
     const itemsPerPage = 9;
     const random = searchParams.get('random');
-    const star = searchParams.get('star');
+    const list = searchParams.get('list');
+    const sort = searchParams.get('sort') || '';
+    const show = searchParams.get('show');
 
     try {
         const db = await connectToDatabase();
@@ -63,14 +65,24 @@ export async function GET(request: Request) {
             query.tags = { $elemMatch: { $regex: tag, $options: 'i' } };
         }
 
-        if (star) {
-            const starIds = star.split(',').map(id => id.trim());
-            query.id = { $in: starIds };
+        if (list) {
+            const listIds = list.split(',').map(id => id.trim());
+            query.id = { $in: listIds };
         }
 
         let documents;
         let totalItems;
         let totalPages;
+
+        // Xác định cách sắp xếp
+        let sortOption: Sort = { _id: -1 };
+        if (sort === 'heart') {
+            sortOption = { heart: -1 };
+        } else if (sort === 'view') {
+            sortOption = { view: -1 };
+        } else if (sort === 'star') {
+            sortOption = { star: -1 };
+        }
 
         if (random) {
             // Nếu có tham số random, lấy ngẫu nhiên số lượng bản ghi theo giá trị random
@@ -87,13 +99,22 @@ export async function GET(request: Request) {
             totalItems = await collection.countDocuments(query);
             totalPages = Math.ceil(totalItems / itemsPerPage);
             documents = await collection.find(query)
-                .sort({ _id: -1 })
+                .sort(sortOption)
                 .skip((pageNumber - 1) * itemsPerPage)
                 .limit(itemsPerPage)
                 .toArray();
+        } else if (show) {
+            // Nếu có tham số show, hiển thị số lượng bản ghi theo giá trị show
+            const showCount = parseInt(show, 10);
+            documents = await collection.find(query)
+                .sort(sortOption)
+                .limit(showCount)
+                .toArray();
+            totalItems = documents.length;
+            totalPages = 1;
         } else {
-            // Nếu không có tham số page hoặc random, lấy toàn bộ dữ liệu
-            documents = await collection.find(query).sort({ _id: -1 }).toArray();
+            // Nếu không có tham số page, random hoặc show, lấy toàn bộ dữ liệu
+            documents = await collection.find(query).sort(sortOption).toArray();
             totalItems = documents.length;
             totalPages = 1;
         }
